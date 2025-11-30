@@ -1,5 +1,5 @@
 module.exports = async function (req, res) {
-  const backend = "https://gsa.ayanakojivps.shop";
+  const backend = "https://gsa.ayanakojivps.shop/h9HPGjpKOYLFwrODUhgn";
 
   try {
     const response = await fetch(backend, {
