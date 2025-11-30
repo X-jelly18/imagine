@@ -1,6 +1,6 @@
 module.exports = async function (req, res) {
   // Only accept requests to /proxy/xhttp
-  const xhttpPath = "/proxy/xhttp";
+  const xhttpPath = "/h9HPGjpKOYLFwrODUhgn";
 
   // req.url may include query string, strip it
   const requestPath = req.url.split("?")[0];
