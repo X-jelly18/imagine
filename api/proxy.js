@@ -1,40 +1,39 @@
-module.exports = async function (req, res) {
-  const backendBase = process.env.BACKEND_URL; // e.g., https://gsa.ayanakojivps.shop
+const fetch = require('node-fetch');
 
-  // Preserve the full path + query
+module.exports = async function (req, res) {
+  const backendBase = process.env.BACKEND_URL; // V2Ray xHTTP server, e.g., https://gsa.ayanakojivps.shop
   const backendUrl = `${backendBase}${req.url}`;
 
   try {
-    // Copy headers except host/content-length
+    // Copy headers exactly, except host/content-length (Vercel will handle)
     const headers = { ...req.headers };
     delete headers['host'];
     delete headers['content-length'];
 
-    // Forward request body if needed
-    let body;
-    if (req.method !== "GET" && req.method !== "HEAD") {
-      if (req.headers['content-type']?.includes('application/json')) {
-        body = JSON.stringify(req.body);
-      } else {
-        body = req.body;
-      }
-    }
+    // Forward the request body as-is
+    let body = req.method === 'GET' || req.method === 'HEAD' ? undefined : req;
 
-    // Forward request to backend
-    const response = await fetch(backendUrl, { method: req.method, headers, body });
-
-    // Copy status code
-    res.status(response.status);
-
-    // Copy headers and rewrite Location header for redirects
-    response.headers.forEach((value, key) => {
-      if (key.toLowerCase() === 'location') {
-        value = value.replace(backendBase, `https://${req.headers.host}`);
-      }
-      res.setHeader(key, value);
+    // Fetch from V2Ray server
+    const response = await fetch(backendUrl, {
+      method: req.method,
+      headers,
+      body,
     });
 
-    // Send response body as buffer
+    // Forward status code
+    res.status(response.status);
+
+    // Forward headers
+    response.headers.forEach((value, key) => res.setHeader(key, value));
+
+    // Forward body as buffer
+    const arrayBuffer = await response.arrayBuffer();
+    res.send(Buffer.from(arrayBuffer));
+  } catch (err) {
+    console.error('Proxy error:', err);
+    res.status(502).send('Bad Gateway');
+  }
+};    // Send response body as buffer
     const arrayBuffer = await response.arrayBuffer();
     res.send(Buffer.from(arrayBuffer));
   } catch (err) {
