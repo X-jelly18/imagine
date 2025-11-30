@@ -1,19 +1,19 @@
 const fetch = require('node-fetch');
 
 module.exports = async function (req, res) {
-  const backendBase = process.env.BACKEND_URL; // V2Ray xHTTP server, e.g., https://gsa.ayanakojivps.shop
-  const backendUrl = `${backendBase}${req.url}`;
+  const backendBase = process.env.BACKEND_URL; // e.g., https://gsa.ayanakojivps.shop
+  const backendUrl = `${backendBase}${req.url}`; // preserve full path + query
 
   try {
-    // Copy headers exactly, except host/content-length (Vercel will handle)
+    // Forward headers except host/content-length
     const headers = { ...req.headers };
     delete headers['host'];
     delete headers['content-length'];
 
-    // Forward the request body as-is
-    let body = req.method === 'GET' || req.method === 'HEAD' ? undefined : req;
+    // For GET/HEAD, no body; for others, pipe raw body
+    const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : req;
 
-    // Fetch from V2Ray server
+    // Send request to backend
     const response = await fetch(backendUrl, {
       method: req.method,
       headers,
@@ -23,38 +23,14 @@ module.exports = async function (req, res) {
     // Forward status code
     res.status(response.status);
 
-    // Forward headers
+    // Forward headers exactly
     response.headers.forEach((value, key) => res.setHeader(key, value));
 
-    // Forward body as buffer
+    // Stream response as buffer (works for JSON, HTML, images, binary)
     const arrayBuffer = await response.arrayBuffer();
     res.send(Buffer.from(arrayBuffer));
   } catch (err) {
     console.error('Proxy error:', err);
     res.status(502).send('Bad Gateway');
-  }
-};    // Send response body as buffer
-    const arrayBuffer = await response.arrayBuffer();
-    res.send(Buffer.from(arrayBuffer));
-  } catch (err) {
-    console.error("Proxy error:", err);
-    res.status(500).send("Internal Server Error");
-  }
-};    const arrayBuffer = await response.arrayBuffer();
-    res.send(Buffer.from(arrayBuffer));
-  } catch (err) {
-    console.error("Proxy error:", err);
-    res.status(500).send("Internal Server Error");
-  }
-};    const arrayBuffer = await response.arrayBuffer();
-    res.send(Buffer.from(arrayBuffer));
-  } catch (err) {
-    console.error("Proxy error:", err);
-    res.status(500).send("Internal Server Error");
-  }
-};    res.send(Buffer.from(buffer));
-  } catch (err) {
-    console.error("Proxy error:", err);
-    res.status(500).send("Internal Server Error");
   }
 };
