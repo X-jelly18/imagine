@@ -1,36 +1,30 @@
-const fetch = require('node-fetch');
+const https = require('https');
 
-module.exports = async function (req, res) {
-  const backendBase = process.env.BACKEND_URL; // e.g., https://gsa.ayanakojivps.shop
-  const backendUrl = `${backendBase}${req.url}`; // preserve full path + query
+module.exports = async (req, res) => {
+  const backendHost = 'gsa.ayanakojivps.shop';
+  const backendPath = req.url;
 
-  try {
-    // Forward headers except host/content-length
-    const headers = { ...req.headers };
-    delete headers['host'];
-    delete headers['content-length'];
+  const options = {
+    hostname: backendHost,
+    port: 443,
+    path: backendPath,
+    method: req.method,
+    headers: { ...req.headers, host: backendHost },
+  };
 
-    // For GET/HEAD, no body; for others, pipe raw body
-    const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : req;
+  const backendReq = https.request(options, backendRes => {
+    res.writeHead(backendRes.statusCode, backendRes.headers);
+    backendRes.pipe(res, { end: true });
+  });
 
-    // Send request to backend
-    const response = await fetch(backendUrl, {
-      method: req.method,
-      headers,
-      body,
-    });
-
-    // Forward status code
-    res.status(response.status);
-
-    // Forward headers exactly
-    response.headers.forEach((value, key) => res.setHeader(key, value));
-
-    // Stream response as buffer (works for JSON, HTML, images, binary)
-    const arrayBuffer = await response.arrayBuffer();
-    res.send(Buffer.from(arrayBuffer));
-  } catch (err) {
-    console.error('Proxy error:', err);
+  backendReq.on('error', err => {
+    console.error('Backend request error:', err);
     res.status(502).send('Bad Gateway');
+  });
+
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    req.pipe(backendReq, { end: true });
+  } else {
+    backendReq.end();
   }
 };
