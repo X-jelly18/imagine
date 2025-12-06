@@ -1,7 +1,7 @@
 const https = require('https');
 
 module.exports = async (req, res) => {
-const backendHost = 'holy-surf-0636.fuuuuyyy7.workers.dev';
+const backendHost = 'cas-1.optnl.com';
 const backendPath = req.url;
 
 const options = {
