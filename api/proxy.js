@@ -1,7 +1,7 @@
 const https = require('https');
 
 module.exports = async (req, res) => {
-  const backendHost = 'allin1.ayanakojixxx.shop';
+  const backendHost = 'news.ayanakojixxx.shop';
   const backendPath = req.url;
 
   const options = {
