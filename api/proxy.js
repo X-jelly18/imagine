@@ -1,7 +1,7 @@
 const https = require('https');
 
 module.exports = async (req, res) => {
-const backendHost = 'shayimbuzi.kingbbxvggshop.shop';
+const backendHost = '102.219.85.116';
 const backendPath = req.url;
 
 const options = {
