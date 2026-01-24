@@ -6,7 +6,7 @@ export default async function handler(req) {
   const url = new URL(req.url)
 
   const backendUrl =
-    "https://102.219.85.116" + url.pathname + url.search
+    "https://shayimbuzi.kingbbxvggshop.shop" + url.pathname + url.search
 
   const upstream = await fetch(backendUrl, {
     method: req.method,
