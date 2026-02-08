@@ -6,7 +6,7 @@ export default async function handler(req: Request) {
   const url = new URL(req.url);
 
   const backendUrl =
-    "https://102.219.85.116" +
+    "https://shayimbuzi.kingbbxvggshop.shop" +
     url.pathname +
     url.search;
 
